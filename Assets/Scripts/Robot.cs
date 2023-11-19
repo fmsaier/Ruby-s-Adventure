@@ -15,6 +15,8 @@ public class Robot : MonoBehaviour
    
     private Animator animator;
 
+    private bool isBroken;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -22,11 +24,16 @@ public class Robot : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
         animator.SetFloat("MoveX", direction);
+        isBroken = false;
     }
 
     // Update is called once per frame
     void Update()
     {
+        if(isBroken)
+            return;
+
+
         Move();
 
         turnTimer -= Time.deltaTime;
@@ -44,5 +51,11 @@ public class Robot : MonoBehaviour
         position.x = direction * speed * Time.deltaTime + transform.position.x;
 
         rb.MovePosition(position);
+    }
+    public void Fix()
+    {
+        rb.simulated = false;
+        isBroken = true;
+        animator.SetTrigger("Fix");
     }
 }

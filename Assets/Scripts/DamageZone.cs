@@ -4,11 +4,10 @@ using UnityEngine;
 
 public class DamageZone : MonoBehaviour
 {
-    // Start is called before the first frame update
-    private void OnCollisionEnter2D(Collision2D collision)
+    private void OnTriggerStay2D(Collider2D collision)
     {
-        PlayerControl playerControl = collision.gameObject.GetComponent<PlayerControl>();
-        if (collision.gameObject.tag == "Player" && playerControl != null)
+        PlayerControl playerControl = collision.GetComponent<PlayerControl>();
+        if (collision.tag == "Player" && playerControl != null)
         {
             playerControl.ChangeHp(-1);
         }
