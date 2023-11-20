@@ -9,6 +9,7 @@ public class Robot : MonoBehaviour
     private Rigidbody2D rb;
 
     private int direction = 1;
+    public bool vertical = false;
 
     private const float turnTime = 2;
     private float turnTimer;
@@ -23,7 +24,17 @@ public class Robot : MonoBehaviour
         turnTimer = turnTime;
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
-        animator.SetFloat("MoveX", direction);
+        if(vertical)
+        {
+            animator.SetFloat("MoveY", direction);
+            animator.SetFloat("MoveX", 0);
+        }
+        else
+        {
+            animator.SetFloat("MoveX", direction);
+            animator.SetFloat("MoveY", 0);
+        }
+        
         isBroken = false;
     }
 
@@ -40,7 +51,17 @@ public class Robot : MonoBehaviour
         if (turnTimer < 0)
         {
             direction = -direction;
-            animator.SetFloat("MoveX", direction);
+            if (vertical)
+            {
+                animator.SetFloat("MoveY", direction);
+                animator.SetFloat("MoveX", 0);
+            }
+            else
+            {
+                animator.SetFloat("MoveX", direction);
+                animator.SetFloat("MoveY", 0);
+            }
+
             turnTimer = turnTime;
         }
 
@@ -48,7 +69,10 @@ public class Robot : MonoBehaviour
     private void Move()
     {
         Vector2 position = transform.position;
-        position.x = direction * speed * Time.deltaTime + transform.position.x;
+        if(vertical)
+            position.y = direction * speed * Time.deltaTime + transform.position.y;     
+        else
+            position.x = direction * speed * Time.deltaTime + transform.position.x;
 
         rb.MovePosition(position);
     }
