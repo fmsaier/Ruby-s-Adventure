@@ -4,6 +4,12 @@ using UnityEngine;
 
 public class Robot : MonoBehaviour
 {
+    public ParticleSystem smoke;
+    public GameObject buttle;
+
+    private AudioSource audioSource;
+    public AudioClip fix;
+
     public float speed = 15;
 
     private Rigidbody2D rb;
@@ -17,13 +23,16 @@ public class Robot : MonoBehaviour
     private Animator animator;
 
     private bool isBroken;
+    public static int fixedNum;
 
     // Start is called before the first frame update
     void Start()
     {
+        fixedNum = 0;
         turnTimer = turnTime;
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
+        audioSource = GetComponent<AudioSource>();
         if(vertical)
         {
             animator.SetFloat("MoveY", direction);
@@ -66,6 +75,7 @@ public class Robot : MonoBehaviour
         }
 
     }
+
     private void Move()
     {
         Vector2 position = transform.position;
@@ -80,6 +90,13 @@ public class Robot : MonoBehaviour
     {
         rb.simulated = false;
         isBroken = true;
+        smoke.Stop();
         animator.SetTrigger("Fix");
+        audioSource.Stop();
+        audioSource.volume = 1;
+        audioSource.PlayOneShot(fix);
+        Instantiate(buttle,transform.position, Quaternion.identity);
+        fixedNum++;
+        //audioSource.Stop();
     }
 }

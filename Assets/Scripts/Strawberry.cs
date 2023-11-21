@@ -4,7 +4,8 @@ using UnityEngine;
 
 public class Strawberry : MonoBehaviour
 {
-    
+    public AudioClip clip;
+    public GameObject strawEffect;
     private void OnTriggerEnter2D(Collider2D collision)
     {
         PlayerControl playerControl = collision.GetComponent<PlayerControl>();
@@ -13,6 +14,8 @@ public class Strawberry : MonoBehaviour
             if(playerControl.CurHp < playerControl.MaxHp)
             {
                 playerControl.ChangeHp(1);
+                Instantiate(strawEffect,transform.position, Quaternion.identity);
+                playerControl.PlaySound(clip);
                 Destroy(gameObject);
             }
         }

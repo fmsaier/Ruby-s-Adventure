@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class Bullet : MonoBehaviour
 {
+    //public ParticleSystem bullet;
     private void OnCollisionEnter2D(Collision2D collision)
     {
         Robot robot = collision.gameObject.GetComponent<Robot>();
@@ -11,6 +12,8 @@ public class Bullet : MonoBehaviour
         {
             robot.Fix();
         }
+        //bullet.Play();
         Destroy(gameObject);
+        
     }
 }

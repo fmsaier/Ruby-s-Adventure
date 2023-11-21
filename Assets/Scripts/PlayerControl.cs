@@ -4,6 +4,12 @@ using UnityEngine;
 
 public class PlayerControl : MonoBehaviour
 {
+    private Vector2 startPosition;
+
+    private AudioSource audioSource;
+    public AudioClip hitClip;
+    public AudioClip shootClip;
+
     public float speed = 20;
 
     private Rigidbody2D rb;
@@ -24,18 +30,21 @@ public class PlayerControl : MonoBehaviour
     public GameObject bulletPrefab;
     public int force = 300;
 
+    private Vector2 pos;
     public int CurHp {  get { return curHp; } }
     public int MaxHp { get { return maxHp; } }
 
     // Start is called before the first frame update
     void Start()
     {
+        startPosition = transform.position;
         Application.targetFrameRate = 60;
         ineffTimer = ineffTime;
         curHp = maxHp;
         rb = GetComponent<Rigidbody2D>();
         //enRb = enemy.GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>(); 
+        audioSource = GetComponent<AudioSource>();
     }
 
     // Update is called once per frame
@@ -46,7 +55,7 @@ public class PlayerControl : MonoBehaviour
         Move();
 
         if (Input.GetKeyDown(KeyCode.Mouse0))
-        {
+        {  
             Shoot();
         }
 
@@ -58,13 +67,30 @@ public class PlayerControl : MonoBehaviour
                 isIneff = false;
             }
         }
+        if(Input.GetKeyDown(KeyCode.F))
+        {
+            RaycastHit2D hit = Physics2D.Raycast(rb.position + Vector2.up, pos, 1.5f, LayerMask.GetMask("NPC"));
+            if(hit.collider != null)
+            {
+                NPCDia nPCDia = hit.collider.GetComponent<NPCDia>();
+                if(nPCDia != null)
+                {
+                    nPCDia.DialogPlay();
+                }
+            }
+        }
+        if(curHp <= 0)
+        {
+            transform.position = startPosition;
+            ChangeHp(maxHp);
+        }
     }
     private void Move()
     {
         float h = Input.GetAxis("Horizontal");
         float v = Input.GetAxis("Vertical");
 
-        Vector2 pos = new Vector2(h, v);
+        pos = new Vector2(h, v);
 
         //控制（0，0）的朝向，让上一次向哪走最后就面向哪，防止被初始化成（0，0）
         if (!Mathf.Approximately(pos.x, 0) || !Mathf.Approximately(pos.y, 0))
@@ -92,16 +118,35 @@ public class PlayerControl : MonoBehaviour
                 return;
             isIneff = true;
             ineffTimer = ineffTime;
+            PlaySound(hitClip);
+            animator.SetTrigger("Hit");
         }
 
         curHp = Mathf.Clamp(curHp + count, 0, maxHp);
-        Debug.Log(curHp + "/" + maxHp);
+        UIHealth.intance.SetHpUISize(curHp / (float)maxHp);
+        //Debug.Log(curHp + "/" + maxHp);
     }
     private void Shoot()
     {
-        GameObject bullet = Instantiate(bulletPrefab, transform.position, Quaternion.identity);
-        Rigidbody2D rbBullet = bullet.GetComponent<Rigidbody2D>();
-        rbBullet.AddForce(force * dir);
-        animator.SetTrigger("Launch");
+        if (UIHealth.intance.hasTask)
+        {
+            GameObject bullet = Instantiate(bulletPrefab, rb.position + new Vector2(0, 1) * 0.4f, Quaternion.identity);
+            Rigidbody2D rbBullet = bullet.GetComponent<Rigidbody2D>();
+            rbBullet.AddForce(force * dir);
+            animator.SetTrigger("Launch");
+            PlaySound(shootClip);
+        } 
+    }
+    private void OnCollisionStay2D(Collision2D collision)
+    {
+        if(collision.gameObject.tag == "Enemy")
+        {
+            
+            ChangeHp(-1);
+        }
+    }
+    public void PlaySound(AudioClip clip)
+    {
+        audioSource.PlayOneShot(clip);
     }
 }
