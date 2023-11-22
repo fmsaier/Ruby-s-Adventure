@@ -30,7 +30,7 @@ public class UIHealth : MonoBehaviour
     }
     void Update()
     {
-        if(Robot.fixedNum == 2 && !isPlay)
+        if(Robot.fixedNum == 3 && !isPlay)
         {
             isPlay = true;
             if(!audioSource.isPlaying)
